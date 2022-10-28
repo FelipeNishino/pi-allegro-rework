@@ -18,8 +18,7 @@ LDFLAGS += -lm -lsodium
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
-SRCS := $(shell find $(SRC_DIRS) -name '*.c' -or -name '*.s')
-
+SRCS := $(shell find ./ -not \( -path "./libs/win" -prune \) -name '*.c' -or -name '*.s')
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
