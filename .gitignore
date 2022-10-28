@@ -27,3 +27,5 @@ PI-Allegro/Debug/PI-Allegro.obj
 PI-Allegro/Debug/PI-Allegro.pdb
 *.idb
 PI-Allegro/Debug/vc142.pdb
+build/
+bin/
