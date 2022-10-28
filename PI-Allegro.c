@@ -1279,12 +1279,12 @@ int main() {
 			switch (stageSelect) {
 			case 1:
 				al_stop_samples();
-				fopen_s(&tm, "Tiles/tilemap1.txt", "r");
+				tm = fopen("Tiles/tilemap1.txt", "r");
 				al_play_sample(bgm2, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 				break;
 			case 2:
 				al_stop_samples();
-				fopen_s(&tm, "Tiles/tilemap2.txt", "r");
+				tm = fopen("Tiles/tilemap2.txt", "r");
 				al_play_sample(bgm3, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 				break;
 			}
@@ -1292,7 +1292,7 @@ int main() {
 			for (i = 0; i < 2; i++) {
 				for (j = 0; j < mapSize; j++) {
 					for (k = 0; k < mapSize; k++) {
-						fscanf_s(tm, "%d", &tileset[i][j][k]);
+						fscanf(tm, "%d", &tileset[i][j][k]);
 					}
 				}
 			}
@@ -1494,10 +1494,10 @@ int main() {
 				case ALLEGRO_KEY_ENTER:
 					switch (stageSelect) {
 					case 1:
-						fopen_s(&tm, "Tiles/tilemap1.txt", "w");
+						tm = fopen("Tiles/tilemap1.txt", "w");
 						break;
 					case 2:
-						fopen_s(&tm, "Tiles/tilemap2.txt", "w");
+						tm = fopen("Tiles/tilemap2.txt", "w");
 						break;
 					}
 
@@ -1654,11 +1654,11 @@ int main() {
 
 				switch (stageSelect) {
 				case 1:
-					sprintf_s(objText, sizeof(objText), "Stage %d", stageSelect);
+					sprintf(objText, "Stage %d", stageSelect);
 					al_draw_text(font, al_map_rgb(255, 255, 255), 10, 5, 0, objText);
 					break;
 				case 2:
-					sprintf_s(objText, sizeof(objText), "Stage %d", stageSelect);
+					sprintf(objText, "Stage %d", stageSelect);
 					al_draw_text(font, al_map_rgb(255, 255, 255), 10, 5, 0, objText);
 					break;
 				}
@@ -1737,9 +1737,9 @@ int main() {
 				}
 
 				al_draw_text(font, al_map_rgb(255, 255, 255), 10, 73, 0, mousePos);
-				sprintf_s(ptx, sizeof(ptx), "X = %d", player.tileX);
+				sprintf(ptx, "X = %d", player.tileX);
 				al_draw_text(font, al_map_rgb(255, 255, 255), 10, 60, 0, ptx);
-				sprintf_s(pty, sizeof(pty), "Y = %d", player.tileY);
+				sprintf(pty, "Y = %d", player.tileY);
 				al_draw_text(font, al_map_rgb(255, 255, 255), 100, 60, 0, pty);
 
 				al_flip_display();
@@ -2158,16 +2158,16 @@ int main() {
 
 				al_draw_filled_rectangle(windowWidth - (2 * (enemy[hitI[enemyI]].maxLife - enemyDmgGauge) + 50), 50, windowWidth - (enemy[hitI[enemyI]].life + 50), 62, al_map_rgb(255, 0, 0));
 				al_draw_filled_rectangle(windowWidth - 50, 50, windowWidth - (2 * enemy[hitI[enemyI]].life + 50), 62, al_map_rgb(0, 128, 0));
-				sprintf_s(enemyLifeGauge, sizeof(enemyLifeGauge), "%.0f", enemy[hitI[enemyI]].life);
+				sprintf(enemyLifeGauge, "%.0f", enemy[hitI[enemyI]].life);
 				al_draw_text(font, al_map_rgb(255, 255, 255), windowWidth - 48, 42, 0, enemyLifeGauge);
 
 				switch (stageSelect) {
 				case 1:
-					sprintf_s(objText, sizeof(objText), "Shooters left = %d", killCount.count);
+					sprintf(objText, "Shooters left = %d", killCount.count);
 					al_draw_text(font, al_map_rgb(255, 255, 255), 10, 5, 0, objText);
 					break;
 				case 2:
-					sprintf_s(objText, sizeof(objText), "survive = %d", endurance.count);
+					sprintf(objText, "survive = %d", endurance.count);
 					al_draw_text(font, al_map_rgb(255, 255, 255), 10, 5, 0, objText);
 					break;
 				}
@@ -2176,9 +2176,9 @@ int main() {
 					al_draw_text(font, al_map_rgb(255, 255, 255), windowWidth / 2, 0, ALLEGRO_ALIGN_CENTER, "Dev mode!!");
 				}
 
-				sprintf_s(ptx, sizeof(ptx), "X = %d", player.tileX);
+				sprintf(ptx, "X = %d", player.tileX);
 				al_draw_text(font, al_map_rgb(255, 255, 255), 10, 50, 0, ptx);
-				sprintf_s(pty, sizeof(pty), "Y = %d", player.tileY);
+				sprintf(pty, "Y = %d", player.tileY);
 				al_draw_text(font, al_map_rgb(255, 255, 255), 100, 50, 0, pty);
 
 				switch (player.selectedWeapon) {
