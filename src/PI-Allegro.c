@@ -9,6 +9,9 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/bitmap.h>
+#include <allegro5/color.h>
+#include "logger.h"
 
 #define FPS 60
 #define windowWidth 1366
@@ -223,27 +226,48 @@ pos mouse;
 pos editorClick;
 pos currentTile;
 
-int initialize() {
+void must_init(int test, const char *description)
+{
+    if(test) return;
 
+	logger_log(LOG_ERROR, "couldn't initialize %s\n", description);
+    exit(1);
+}
+
+int initialize() {
+	logger_log(LOG_DEBUG, "Initializing sodium");
 	sodium_init();
 
-	al_init();
-	al_init_image_addon();
-	al_install_audio();
-	al_init_acodec_addon();
-	al_init_font_addon();
-	al_init_ttf_addon();
-	al_get_default_mixer();
-	al_init_primitives_addon();
+	logger_log(LOG_DEBUG, "Initializing allegro ");
+	must_init(al_init(), "allegro core");
+	logger_log(LOG_DEBUG, "Initializing allegro_image ");
+	must_init(al_init_image_addon(), "allegro_image");
+	logger_log(LOG_DEBUG, "Initializing allegro_audio ");
+	must_init(al_install_audio(), "allegro_audio");
+	logger_log(LOG_DEBUG, "Initializing allegro_acodec ");
+	must_init(al_init_acodec_addon(), "allegro_acodec");
+	logger_log(LOG_DEBUG, "Initializing allegro_font ");
+	must_init(al_init_font_addon(), "allegro_font");
+	logger_log(LOG_DEBUG, "Initializing allegro_ttf ");
+	must_init(al_init_ttf_addon(), "allegro_ttf");
+	logger_log(LOG_DEBUG, "Initializing allegro_primitives ");
+	must_init(al_init_primitives_addon(), "allegro_primitives");
+	
 
+	logger_log(LOG_DEBUG, "Set default mixer");
+	al_get_default_mixer();
+
+	logger_log(LOG_DEBUG, "Set draw timer to %d fps", FPS);
 	timer = al_create_timer(1.0 / FPS);
 	al_set_new_display_flags(ALLEGRO_RESIZABLE);
 	display = al_create_display(windowWidth, windowHeight);
 	evQueue = al_create_event_queue();
 	font = al_load_font("assets/fonts/metal-slug.ttf", 13, 0);
 	al_set_window_title(display, "Inside Wars");
+	logger_log(LOG_DEBUG, "Set window (Inside Wars) %dx%d; props: Rezisable", windowWidth, windowHeight);
 	al_reserve_samples(4);
 
+	logger_log(LOG_INFO, "Loading audio assets...");
 	sfx_sp1 = al_load_sample("assets/audio/spawn.wav");
 	shot = al_load_sample("assets/audio/tiro.ogg");
 	sfx_jump = al_load_sample("assets/audio/jump.wav");
@@ -256,9 +280,10 @@ int initialize() {
 	al_convert_mask_to_alpha(playerShotTemplate[0], al_map_rgb(255, 0, 255));
 	al_convert_mask_to_alpha(playerShotTemplate[1], al_map_rgb(255, 0, 255));
 
+	logger_log(LOG_DEBUG, "Setting up keyboard and mouse");
 	al_install_keyboard();
 	al_install_mouse();
-
+	logger_log(LOG_DEBUG, "Setting up event queue");
 	al_register_event_source(evQueue, al_get_display_event_source(display));
 	al_register_event_source(evQueue, al_get_timer_event_source(timer));
 
@@ -957,6 +982,8 @@ void createTileAtlas(void) {
 }
 
 int main() {
+	logger_set_output_level(LOG_DEBUG);
+
 	int entcount = 0, spawntimeout = 0, i, j, k, l = 0, projectileCount = 0, stageSelect = 1, enemyProjectileCount = 0, enemySpawnTileCount = 0, enemyDmgGauge = 0, hit = 0, hitI[2] = { 0, 0 }, hitII = 0, tilefunc = 0, frameCount = 0, immortalityFC = 0, enemyDeadFC[enemyMax] = { 0, 0 }, runCycle = 0, spawn;
 	int *eSTx, *eSTy;
 	int*** tileset = NULL;
@@ -967,6 +994,8 @@ int main() {
 	queue devChecker;
 
 	initialize();
+	logger_log(LOG_INFO, "Finished initializing core systems");
+	
 	initQueue(&devChecker);
 
 	tiles[air].isSolid = false;
@@ -1020,12 +1049,15 @@ int main() {
 	tiles[chaounico].isSolid = true;
 	tiles[chaounico].id = chaounico;
 
+	logger_log(LOG_DEBUG, "Loading stage images");
+
 	stage[backgroundL1] = al_load_bitmap("assets/images/backgroundL1.png");
 	stage[backgroundL2] = al_load_bitmap("assets/images/backgroundL2.png");
 	al_convert_mask_to_alpha(stage[backgroundL2], al_map_rgb(255, 0, 255));
 	stage[backgroundL3] = al_load_bitmap("assets/images/backgroundL3.png");
 	al_convert_mask_to_alpha(stage[backgroundL3], al_map_rgb(255, 0, 255));
 
+	logger_log(LOG_DEBUG, "Loading tilesheets");
 	tileAtlas = al_load_bitmap("assets/images/tilesheet.png");
 	al_convert_mask_to_alpha(tileAtlas, al_map_rgb(255, 0, 255));
 	playersheet = al_load_bitmap("assets/images/playersheet.png");
@@ -1033,6 +1065,7 @@ int main() {
 	enemysheet = al_load_bitmap("assets/images/enemysheet.png");
 	al_convert_mask_to_alpha(enemysheet, al_map_rgb(255, 0, 255));
 
+	logger_log(LOG_DEBUG, "Loading menu assets");
 	titulo = al_load_bitmap("assets/images/Menu/title.png");
 	btnf1 = al_load_bitmap("assets/images/Menu/Nselect/lvl1.png");
 	btnf2 = al_load_bitmap("assets/images/Menu/Nselect/lvl2.png");
@@ -1046,10 +1079,17 @@ int main() {
 	antib = al_load_bitmap("assets/images/Menu/TelasProntas/antib.png");
 	antim = al_load_bitmap("assets/images/Menu/TelasProntas/antim.png");
 
+	logger_log(LOG_DEBUG, "Loading bacteria sprites...");
 	enemySprite[antiBiotic] = al_load_bitmap("assets/images/bacteria.png");
+	logger_log(LOG_DEBUG, "Getting pixel");
+	ALLEGRO_COLOR c = al_get_pixel(enemySprite[antiBiotic], 0, 0);
+	fprintf(stderr, "r %.2f g %.2f b %.2f \n", c.r, c.g, c.b);
+	logger_log(LOG_DEBUG, "Masking bacteria sprites...");
 	al_convert_mask_to_alpha(enemySprite[antiBiotic], al_map_rgb(255, 0, 255));
 
+	logger_log(LOG_DEBUG, "Loading fungi sprites...");
 	enemySprite[antiMycotic] = al_load_bitmap("assets/images/fungo.png");
+	logger_log(LOG_DEBUG, "Masking fungi sprites...");
 	al_convert_mask_to_alpha(enemySprite[antiMycotic], al_map_rgb(255, 0, 255));
 
 	enemySprite[antiVirus] = al_load_bitmap("assets/images/virus.png");

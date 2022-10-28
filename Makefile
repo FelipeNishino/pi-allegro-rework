@@ -10,8 +10,8 @@ endif
 
 BIN_DIR := ./bin
 BUILD_DIR := ./build
-SRC_DIRS := ./
-INC_DIRS := ./
+SRC_DIRS := ./src
+INC_DIRS := ./include
 
 LDFLAGS := $(shell pkg-config allegro-5 allegro_image-5 allegro_primitives-5 allegro_audio-5 allegro_ttf-5 allegro_acodec-5 allegro_font-5 --libs --cflags) 
 LDFLAGS += -lm -lsodium
@@ -45,7 +45,7 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INC_FLAGS) -c $< -o $@
 
 .PHONY: clean run
 clean:
