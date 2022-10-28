@@ -240,19 +240,19 @@ int initialize() {
 	al_set_new_display_flags(ALLEGRO_RESIZABLE);
 	display = al_create_display(windowWidth, windowHeight);
 	evQueue = al_create_event_queue();
-	font = al_load_font("Fonts/metal-slug.ttf", 13, 0);
+	font = al_load_font("assets/fonts/metal-slug.ttf", 13, 0);
 	al_set_window_title(display, "Inside Wars");
 	al_reserve_samples(4);
 
-	sfx_sp1 = al_load_sample("Audio/spawn.wav");
-	shot = al_load_sample("Audio/tiro.ogg");
-	sfx_jump = al_load_sample("Audio/jump.wav");
-	bgm1 = al_load_sample("Audio/menu_bg.ogg");
-	bgm2 = al_load_sample("Audio/fase1.ogg");
-	bgm3 = al_load_sample("Audio/fase2.ogg");
-	sfx_select = al_load_sample("Audio/select.ogg");
-	playerShotTemplate[0] = al_load_bitmap("Img/tiro.png");
-	playerShotTemplate[1] = al_load_bitmap("Img/tiro2.png");
+	sfx_sp1 = al_load_sample("assets/audio/spawn.wav");
+	shot = al_load_sample("assets/audio/tiro.ogg");
+	sfx_jump = al_load_sample("assets/audio/jump.wav");
+	bgm1 = al_load_sample("assets/audio/menu_bg.ogg");
+	bgm2 = al_load_sample("assets/audio/fase1.ogg");
+	bgm3 = al_load_sample("assets/audio/fase2.ogg");
+	sfx_select = al_load_sample("assets/audio/select.ogg");
+	playerShotTemplate[0] = al_load_bitmap("assets/images/tiro.png");
+	playerShotTemplate[1] = al_load_bitmap("assets/images/tiro2.png");
 	al_convert_mask_to_alpha(playerShotTemplate[0], al_map_rgb(255, 0, 255));
 	al_convert_mask_to_alpha(playerShotTemplate[1], al_map_rgb(255, 0, 255));
 
@@ -403,7 +403,7 @@ void enemyRandomizer(entity* e, int stage) {
 
 int initplayer(entity* c, ALLEGRO_BITMAP* player, int* eSTCount, int*** m) {
 	int aux = 0, i, j;
-	player = al_load_bitmap("Img/playersheet.png");
+	player = al_load_bitmap("assets/images/playersheet.png");
 
 	for (i = 0; i < mapSize; i++) {
 		for (j = 0; j < mapSize; j++) {
@@ -1020,39 +1020,39 @@ int main() {
 	tiles[chaounico].isSolid = true;
 	tiles[chaounico].id = chaounico;
 
-	stage[backgroundL1] = al_load_bitmap("Img/backgroundL1.png");
-	stage[backgroundL2] = al_load_bitmap("Img/backgroundL2.png");
+	stage[backgroundL1] = al_load_bitmap("assets/images/backgroundL1.png");
+	stage[backgroundL2] = al_load_bitmap("assets/images/backgroundL2.png");
 	al_convert_mask_to_alpha(stage[backgroundL2], al_map_rgb(255, 0, 255));
-	stage[backgroundL3] = al_load_bitmap("Img/backgroundL3.png");
+	stage[backgroundL3] = al_load_bitmap("assets/images/backgroundL3.png");
 	al_convert_mask_to_alpha(stage[backgroundL3], al_map_rgb(255, 0, 255));
 
-	tileAtlas = al_load_bitmap("Img/tilesheet.png");
+	tileAtlas = al_load_bitmap("assets/images/tilesheet.png");
 	al_convert_mask_to_alpha(tileAtlas, al_map_rgb(255, 0, 255));
-	playersheet = al_load_bitmap("Img/playersheet.png");
+	playersheet = al_load_bitmap("assets/images/playersheet.png");
 	al_convert_mask_to_alpha(playersheet, al_map_rgb(255, 0, 255));
-	enemysheet = al_load_bitmap("Img/enemysheet.png");
+	enemysheet = al_load_bitmap("assets/images/enemysheet.png");
 	al_convert_mask_to_alpha(enemysheet, al_map_rgb(255, 0, 255));
 
-	titulo = al_load_bitmap("Img/Menu/title.png");
-	btnf1 = al_load_bitmap("Img/Menu/Nselect/lvl1.png");
-	btnf2 = al_load_bitmap("Img/Menu/Nselect/lvl2.png");
-	btnle = al_load_bitmap("Img/Menu/Nselect/editor.png");
-	btnf1S = al_load_bitmap("Img/Menu/Select/lvl1_select.png");
-	btnf2S = al_load_bitmap("Img/Menu/Select/lvl2_select.png");
-	btnleS = al_load_bitmap("Img/Menu/Select/editor_select.png");
-	hist = al_load_bitmap("Img/Menu/TelasProntas/TelaContexto.png");
-	control = al_load_bitmap("Img/Menu/TelasProntas/TelaControle.png");
-	antiv = al_load_bitmap("Img/Menu/TelasProntas/antiv.png");
-	antib = al_load_bitmap("Img/Menu/TelasProntas/antib.png");
-	antim = al_load_bitmap("Img/Menu/TelasProntas/antim.png");
+	titulo = al_load_bitmap("assets/images/Menu/title.png");
+	btnf1 = al_load_bitmap("assets/images/Menu/Nselect/lvl1.png");
+	btnf2 = al_load_bitmap("assets/images/Menu/Nselect/lvl2.png");
+	btnle = al_load_bitmap("assets/images/Menu/Nselect/editor.png");
+	btnf1S = al_load_bitmap("assets/images/Menu/Select/lvl1_select.png");
+	btnf2S = al_load_bitmap("assets/images/Menu/Select/lvl2_select.png");
+	btnleS = al_load_bitmap("assets/images/Menu/Select/editor_select.png");
+	hist = al_load_bitmap("assets/images/Menu/TelasProntas/TelaContexto.png");
+	control = al_load_bitmap("assets/images/Menu/TelasProntas/TelaControle.png");
+	antiv = al_load_bitmap("assets/images/Menu/TelasProntas/antiv.png");
+	antib = al_load_bitmap("assets/images/Menu/TelasProntas/antib.png");
+	antim = al_load_bitmap("assets/images/Menu/TelasProntas/antim.png");
 
-	enemySprite[antiBiotic] = al_load_bitmap("Img/bacteria.png");
+	enemySprite[antiBiotic] = al_load_bitmap("assets/images/bacteria.png");
 	al_convert_mask_to_alpha(enemySprite[antiBiotic], al_map_rgb(255, 0, 255));
 
-	enemySprite[antiMycotic] = al_load_bitmap("Img/fungo.png");
+	enemySprite[antiMycotic] = al_load_bitmap("assets/images/fungo.png");
 	al_convert_mask_to_alpha(enemySprite[antiMycotic], al_map_rgb(255, 0, 255));
 
-	enemySprite[antiVirus] = al_load_bitmap("Img/virus.png");
+	enemySprite[antiVirus] = al_load_bitmap("assets/images/virus.png");
 	al_convert_mask_to_alpha(enemySprite[antiVirus], al_map_rgb(255, 0, 255));
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
@@ -1279,12 +1279,12 @@ int main() {
 			switch (stageSelect) {
 			case 1:
 				al_stop_samples();
-				tm = fopen("Tiles/tilemap1.txt", "r");
+				tm = fopen("assets/tilemaps/tilemap1.txt", "r");
 				al_play_sample(bgm2, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 				break;
 			case 2:
 				al_stop_samples();
-				tm = fopen("Tiles/tilemap2.txt", "r");
+				tm = fopen("assets/tilemaps/tilemap2.txt", "r");
 				al_play_sample(bgm3, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 				break;
 			}
@@ -1494,10 +1494,10 @@ int main() {
 				case ALLEGRO_KEY_ENTER:
 					switch (stageSelect) {
 					case 1:
-						tm = fopen("Tiles/tilemap1.txt", "w");
+						tm = fopen("assets/tilemaps/tilemap1.txt", "w");
 						break;
 					case 2:
-						tm = fopen("Tiles/tilemap2.txt", "w");
+						tm = fopen("assets/tilemaps/tilemap2.txt", "w");
 						break;
 					}
 
