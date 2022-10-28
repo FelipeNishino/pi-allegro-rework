@@ -29,3 +29,5 @@ PI-Allegro/Debug/PI-Allegro.pdb
 PI-Allegro/Debug/vc142.pdb
 build/
 bin/
+*.exe
+*.out
