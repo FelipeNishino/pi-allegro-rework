@@ -284,13 +284,6 @@ int initialize() {
 	return 0;
 }
 
-float absF(float* x) {
-	if (*x < 0) {
-		*x = -1 * (*x);
-	}
-	return *x;
-}
-
 ALLEGRO_COLOR get_weapon_color(int sel_weapon) {
 	ALLEGRO_COLOR c;
 	c.a = 255;
@@ -393,29 +386,6 @@ int initplayer(entity* c, ALLEGRO_BITMAP* player, int* eSTCount, int*** m) {
 	return 0;
 }
 
-int initenemy(entity e[], ALLEGRO_BITMAP** enemy) {
-	int i, aux = 0;
-
-	e[contact].attack = contact;
-	e[shooter].attack = shooter;
-
-	for (i = 0; i < enemyMax; i++) {
-		e[i].shotFC = 0;
-		enemyRandomizer(&e[i], stage);
-
-		e[i].vel_x = 0;
-		e[i].vel_y = 0;
-
-		e[i].width = al_get_bitmap_width(*enemy);
-		aux = e[i].width / tileSize;
-		e[i].hbWidth = aux * tileSize;
-		e[i].height = al_get_bitmap_height(*enemy);
-		aux = e[i].height / tileSize;
-		e[i].hbHeight = aux * tileSize;
-	}
-
-	return 0;
-}
 
 /*pos setEnemySpawn(int eSTCount, int*** m) {
 	int i, j;
