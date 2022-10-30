@@ -11,6 +11,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/bitmap.h>
 #include <allegro5/color.h>
+#include <sodium.h>
 #include "logger.h"
 #include "queue.h"
 
