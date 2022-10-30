@@ -51,12 +51,14 @@ typedef struct path {
 	int length;
 } Path;
 
-enum path_identifier {
-	sheets
-};
+typedef enum path_identifier {
+	sheets, menu, images_root
+} PathIdentifier;
 
 static const Path assets_path[] = {
 	{.val = "assets/images/sheets/", .length = 21},
+	{.val = "assets/images/Menu/", .length = 19},
+	{.val = "assets/images/", .length = 14},
 };
 
 enum {
@@ -244,6 +246,16 @@ void init_component(int test, const char *description)
     exit(EXIT_FAILURE);
 }
 
+void load_sprite(ALLEGRO_BITMAP* sprite, PathIdentifier path_id, char* filename, bool mask) {
+	Path file = {.val = filename, .length = strlen(filename)};
+	Path path = assets_path[path_id];
+	char* fullname = malloc((file.length + path.length + 1) * sizeof(char));
+	strncpy(fullname, path.val, path.length);
+	strncat(fullname, file.val, file.length);
+	sprite = al_load_bitmap(fullname);
+	if (mask) al_convert_mask_to_alpha(sprite, al_map_rgb(255, 0, 255));
+}
+
 int initialize() {
 	logger_log(LOG_DEBUG, "Initializing sodium");
 	init_component(sodium_init() >= 0, "sodium");
@@ -282,10 +294,8 @@ int initialize() {
 	bgm2 = al_load_sample("assets/audio/fase1.ogg");
 	bgm3 = al_load_sample("assets/audio/fase2.ogg");
 	sfx_select = al_load_sample("assets/audio/select.ogg");
-	playerShotTemplate[0] = al_load_bitmap("assets/images/tiro.png");
-	playerShotTemplate[1] = al_load_bitmap("assets/images/tiro2.png");
-	al_convert_mask_to_alpha(playerShotTemplate[0], al_map_rgb(255, 0, 255));
-	al_convert_mask_to_alpha(playerShotTemplate[1], al_map_rgb(255, 0, 255));
+	load_sprite(playerShotTemplate[0], images_root, "assets/images/tiro.png", true);
+	load_sprite(playerShotTemplate[1], images_root, "assets/images/tiro2.png", true);
 
 	logger_log(LOG_DEBUG, "Setting up keyboard and mouse");
 	al_install_keyboard();
@@ -870,16 +880,6 @@ void set_tiles() {
 	
 }
 
-void load_sprite(ALLEGRO_BITMAP* sprite, char* filename) {
-	Path file = {.val = filename, .length = strlen(filename)};
-	Path path = assets_path[sheets];
-	char* fullname = malloc((file.length + path.length + 1) * sizeof(char));
-	strncpy(fullname, path.val, path.length);
-	strncat(fullname, file.val, file.length);
-	sprite = al_load_bitmap(fullname);
-	al_convert_mask_to_alpha(sprite, al_map_rgb(255, 0, 255));
-}
-
 int main() {
 	logger_set_output_level(LOG_DEBUG);
 
@@ -908,28 +908,28 @@ int main() {
 	al_convert_mask_to_alpha(stage[backgroundL3], al_map_rgb(255, 0, 255));
 
 	logger_log(LOG_DEBUG, "Loading tilesheets");
-	load_sprite(tileAtlas, "tilesheet.png");
-	load_sprite(playersheet, "playersheet.png");
-	load_sprite(enemysheet, "enemysheet.png");
+	load_sprite(tileAtlas, sheets, "tilesheet.png", true);
+	load_sprite(playersheet, sheets, "playersheet.png", true);
+	load_sprite(enemysheet, sheets, "enemysheet.png", true);
 
 	logger_log(LOG_DEBUG, "Loading menu assets");
-	titulo = al_load_bitmap("assets/images/Menu/title.png");
-	btnf1 = al_load_bitmap("assets/images/Menu/Nselect/lvl1.png");
-	btnf2 = al_load_bitmap("assets/images/Menu/Nselect/lvl2.png");
-	btnle = al_load_bitmap("assets/images/Menu/Nselect/editor.png");
-	btnf1S = al_load_bitmap("assets/images/Menu/Select/lvl1_select.png");
-	btnf2S = al_load_bitmap("assets/images/Menu/Select/lvl2_select.png");
-	btnleS = al_load_bitmap("assets/images/Menu/Select/editor_select.png");
-	hist = al_load_bitmap("assets/images/Menu/TelasProntas/TelaContexto.png");
-	control = al_load_bitmap("assets/images/Menu/TelasProntas/TelaControle.png");
-	antiv = al_load_bitmap("assets/images/Menu/TelasProntas/antiv.png");
-	antib = al_load_bitmap("assets/images/Menu/TelasProntas/antib.png");
-	antim = al_load_bitmap("assets/images/Menu/TelasProntas/antim.png");
+	load_sprite(titulo, menu, "title.png", false);
+	load_sprite(btnf1, menu, "Nselect/lvl1.png", false);
+	load_sprite(btnf2, menu, "Nselect/lvl2.png", false);
+	load_sprite(btnle, menu, "Nselect/editor.png", false);
+	load_sprite(btnf1S, menu, "Select/lvl1_select.png", false);
+	load_sprite(btnf2S, menu, "Select/lvl2_select.png", false);
+	load_sprite(btnleS, menu, "Select/editor_select.png", false);
+	load_sprite(hist, menu, "TelasProntas/TelaContexto.png", false);
+	load_sprite(control, menu, "TelasProntas/TelaControle.png", false);
+	load_sprite(antiv, menu, "TelasProntas/antiv.png", false);
+	load_sprite(antib, menu, "TelasProntas/antib.png", false);
+	load_sprite(antim, menu, "TelasProntas/antim.png", false);
 	
 	logger_log(LOG_DEBUG, "Loading enemy sprites...");
-	load_sprite(enemySprite[antiBiotic], "bacteria.png");
-	load_sprite(enemySprite[antiMycotic], "bacteria.png");
-	load_sprite(enemySprite[antiVirus], "bacteria.png");
+	load_sprite(enemySprite[antiBiotic], images_root, "bacteria.png", true);
+	load_sprite(enemySprite[antiMycotic], images_root, "bacteria.png", true);
+	load_sprite(enemySprite[antiVirus], images_root, "bacteria.png", true);
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
 	al_play_sample(bgm1, 1, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
