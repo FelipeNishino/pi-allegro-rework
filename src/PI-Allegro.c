@@ -109,7 +109,6 @@ typedef struct posicao {
 
 typedef struct entity {
 	FPoint pos;
-	float x0, y0;
 	int tileX, tileY;
 	float width, height;
 	float life, maxLife;
@@ -141,7 +140,6 @@ typedef struct entity {
 
 typedef struct projectile {
 	FPoint pos;
-	float x0, y0;
 	float width, height;
 	float speed, accel;
 	float angle, sin, cos;
@@ -481,15 +479,11 @@ void pShoot(projectile* p, entity* c) {
 
 	p->dir = c->currentDir;
 
-	p->x0 = c->pos.x + (p->dir == Right ? c->hbWidth : - p->hbWidth);
-	
-	p->y0 = c->pos.y + projectileOffset;
+	p->pos.x = c->pos.x + (p->dir == Right ? c->hbWidth : - p->hbWidth);
+	p->pos.y = c->pos.y + projectileOffset;
 
 	p->damage = projectileDamage;
 	p->type = c->selectedWeapon;
-
-	p->pos.x = p->x0;
-	p->pos.y = p->y0;
 
 	c->isShooting = true;
 	p->projectileTravel = true;
@@ -514,20 +508,11 @@ void eShoot(projectile* p, entity* e, entity* c, int fc) {
 	p->cos = cos(p->angle);
 	p->sin = sin(p->angle);
 
-	if (p->dir == Right) {
-		p->x0 = e->pos.x;
-		p->y0 = e->pos.y;
-	}
-	else {
-		p->x0 = e->pos.x;
-		p->y0 = e->pos.y;
-	}
+	p->pos.x = e->pos.x;
+	p->pos.y = e->pos.y;
 
 	p->damage = 10;
 	p->type = 10;
-
-	p->pos.x = p->x0;
-	p->pos.y = p->y0;
 
 	p->projectileTravel = true;
 }
@@ -578,8 +563,7 @@ void refreshPlayerMovement(entity* p, tile t[], int*** m) {
 	p->hbX = (p->pos.x + (p->width / 2)) - p->hbWidth / 2;
 	p->hbY = (p->pos.y + (p->height - p->hbHeight));
 
-	p->x0 = p->pos.x;
-	p->y0 = p->pos.y;
+	FPoint p0 = {.x = p->pos.x, .y = p->pos.y};
 
 	p->tileX = p->hbX / tileSize;
 	p->tileY = p->hbY / tileSize;
@@ -610,7 +594,7 @@ void refreshPlayerMovement(entity* p, tile t[], int*** m) {
 			p->pos.x -= p->vel_x;
 		}
 		if (t[m[gtile][p->tileY][(int)p->pos.x / tileSize]].isSolid) {
-			p->pos.x = p->x0;
+			p->pos.x = p0.x;
 		}
 		break;
 	}
@@ -648,8 +632,8 @@ void refreshPlayerMovement2(entity* p, tile t[], int*** m) {
 	p->hbX = (p->pos.x + (p->width / 2)) - p->hbWidth / 2;
 	p->hbY = (p->pos.y + (p->height - p->hbHeight));
 
-	p->x0 = p->pos.x;
-	p->y0 = p->pos.y;
+
+	FPoint p0 = {.x = p->pos.x, .y = p->pos.y};
 
 	p->tileX = p->hbX / tileSize;
 	p->tileY = p->hbY / tileSize;
