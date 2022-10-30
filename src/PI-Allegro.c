@@ -117,9 +117,6 @@ typedef struct entity {
 	int spriteChange;
 	int shotFC;
 	int rotate;
-	int r;
-	int g;
-	int b;
 	int selectedWeapon;
 	int attack;
 	pos spawnTile;
@@ -294,24 +291,27 @@ float absF(float* x) {
 	return *x;
 }
 
-void setSpriteColor(entity* a) {
-	switch (a->selectedWeapon) {
+ALLEGRO_COLOR get_weapon_color(int sel_weapon) {
+	ALLEGRO_COLOR c;
+	c.a = 255;
+	switch (sel_weapon) {
 	case antiVirus:
-		a->r = 34;
-		a->g = 236;
-		a->b = 39;
+		c.r = 34;
+		c.g = 236;
+		c.b = 39;
 		break;
 	case antiBiotic:
-		a->r = 0;
-		a->g = 162;
-		a->b = 232;
+		c.r = 0;
+		c.g = 162;
+		c.b = 232;
 		break;
 	case antiMycotic:
-		a->r = 226;
-		a->g = 18;
-		a->b = 29;
+		c.r = 226;
+		c.g = 18;
+		c.b = 29;
 		break;
 	}
+	return c;
 }
 
 void setProjectileColor(projectile* a) {
@@ -351,8 +351,6 @@ void enemyRandomizer(entity* e, int stage) {
 	}
 
 	e->selectedWeapon = randombytes_uniform(3);
-
-	setSpriteColor(e);
 
 	e->life = targetPracticeLife + lifeRandomizer;
 	e->maxLife = targetPracticeLife + lifeRandomizer;
@@ -1822,7 +1820,6 @@ int main() {
 					break;
 				}
 
-				setSpriteColor(&player);
 				if (player.dir != 5) {
 					runCycle++;
 				}
@@ -2123,15 +2120,16 @@ int main() {
 				sprintf(pty, "Y = %d", player.tileY);
 				al_draw_text(font, al_map_rgb(255, 255, 255), 100, 50, 0, pty);
 
+				ALLEGRO_COLOR weapon_color = get_weapon_color(player.selectedWeapon);
 				switch (player.selectedWeapon) {
 				case 0:
-					al_draw_text(font, al_map_rgb(player.r, player.g, player.b), 70, 25, 0, "Antivirus");
+					al_draw_text(font, al_map_rgb(weapon_color.r, weapon_color.g, weapon_color.b), 70, 25, 0, "Antivirus");
 					break;
 				case 1:
-					al_draw_text(font, al_map_rgb(player.r, player.g, player.b), 70, 25, 0, "Antibiotic");
+					al_draw_text(font, al_map_rgb(weapon_color.r, weapon_color.g, weapon_color.b), 70, 25, 0, "Antibiotic");
 					break;
 				case 2:
-					al_draw_text(font, al_map_rgb(player.r, player.g, player.b), 70, 25, 0, "Antimycotic");
+					al_draw_text(font, al_map_rgb(weapon_color.r, weapon_color.g, weapon_color.b), 70, 25, 0, "Antimycotic");
 					break;
 				}
 
