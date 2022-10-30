@@ -14,6 +14,7 @@
 #include <sodium.h>
 #include "logger.h"
 #include "queue.h"
+#include "physics.h"
 
 #define FPS 60
 #define windowWidth 1366
@@ -107,7 +108,7 @@ typedef struct posicao {
 } pos;
 
 typedef struct entity {
-	float x, y;
+	FPoint pos;
 	float x0, y0;
 	int tileX, tileY;
 	float width, height;
@@ -139,7 +140,7 @@ typedef struct entity {
 } entity;
 
 typedef struct projectile {
-	float x, y;
+	FPoint pos;
 	float x0, y0;
 	float width, height;
 	float speed, accel;
@@ -343,12 +344,12 @@ void enemyRandomizer(entity* e, int stage) {
 
 	if (stage == 2) {
 		if (section == 1) {
-			e->x = player.x + (100 + randombytes_uniform(201));
+			e->pos.x = player.pos.x + (100 + randombytes_uniform(201));
 		}
 		else {
-			e->x = player.x - (100 + randombytes_uniform(201));
+			e->pos.x = player.pos.x - (100 + randombytes_uniform(201));
 		}
-		e->y = player.y + randombytes_uniform(101);
+		e->pos.y = player.pos.y + randombytes_uniform(101);
 	}
 
 	e->selectedWeapon = randombytes_uniform(3);
@@ -368,8 +369,8 @@ int initplayer(entity* c, ALLEGRO_BITMAP* player, int* eSTCount, int*** m) {
 	for (i = 0; i < mapSize; i++) {
 		for (j = 0; j < mapSize; j++) {
 			if (m[ftile][i][j] == pspawn) {
-				c->x = j * tileSize;
-				c->y = i * tileSize;
+				c->pos.x = j * tileSize;
+				c->pos.y = i * tileSize;
 			}
 			if (m[ftile][i][j] == espawn) {
 				*eSTCount += 1;
@@ -464,7 +465,6 @@ int initenemya(entity* e, ALLEGRO_BITMAP* enemy[], int type, int stage) {
 	return 0;
 }
 
-
 void pShoot(projectile* p, entity* c) {
 	p->speed = projectileVelocity;
 	p->accel = projectileAccel;
@@ -481,20 +481,15 @@ void pShoot(projectile* p, entity* c) {
 
 	p->dir = c->currentDir;
 
-	if (p->dir == Right) {
-		p->x0 = c->x + c->hbWidth;
-		p->y0 = c->y + projectileOffset;
-	}
-	else {
-		p->x0 = c->x - p->hbWidth;
-		p->y0 = c->y + projectileOffset;
-	}
+	p->x0 = c->pos.x + (p->dir == Right ? c->hbWidth : - p->hbWidth);
+	
+	p->y0 = c->pos.y + projectileOffset;
 
 	p->damage = projectileDamage;
 	p->type = c->selectedWeapon;
 
-	p->x = p->x0;
-	p->y = p->y0;
+	p->pos.x = p->x0;
+	p->pos.y = p->y0;
 
 	c->isShooting = true;
 	p->projectileTravel = true;
@@ -520,19 +515,19 @@ void eShoot(projectile* p, entity* e, entity* c, int fc) {
 	p->sin = sin(p->angle);
 
 	if (p->dir == Right) {
-		p->x0 = e->x;
-		p->y0 = e->y;
+		p->x0 = e->pos.x;
+		p->y0 = e->pos.y;
 	}
 	else {
-		p->x0 = e->x;
-		p->y0 = e->y;
+		p->x0 = e->pos.x;
+		p->y0 = e->pos.y;
 	}
 
 	p->damage = 10;
 	p->type = 10;
 
-	p->x = p->x0;
-	p->y = p->y0;
+	p->pos.x = p->x0;
+	p->pos.y = p->y0;
 
 	p->projectileTravel = true;
 }
@@ -542,11 +537,11 @@ void refreshProjectileState(projectile p[], projectile e[], entity c, int* cpCou
 
 	for (j = 0; j < projectileMax; j++) {
 		if (p[j].projectileTravel) {
-			if (p[j].x < cx + al_get_display_width(display) && p[j].x > cx&& p[j].y < cy + al_get_display_height(display) && p[j].y > cy) {
+			if (p[j].pos.x < cx + al_get_display_width(display) && p[j].pos.x > cx&& p[j].pos.y < cy + al_get_display_height(display) && p[j].pos.y > cy) {
 				if (p[j].dir == Right)
-					p[j].x += p[j].speed;
+					p[j].pos.x += p[j].speed;
 				else
-					p[j].x -= p[j].speed;
+					p[j].pos.x -= p[j].speed;
 			}
 			else {
 				p[j].projectileTravel = false;
@@ -560,14 +555,14 @@ void refreshProjectileState(projectile p[], projectile e[], entity c, int* cpCou
 
 	for (j = 0; j < enemyProjectileMax; j++) {
 		if (e[j].projectileTravel) {
-			if (e[j].x < cx + al_get_display_width(display) && e[j].x > cx&& e[j].y < cy + al_get_display_height(display) && e[j].y > cy) {
+			if (e[j].pos.x < cx + al_get_display_width(display) && e[j].pos.x > cx&& e[j].pos.y < cy + al_get_display_height(display) && e[j].pos.y > cy) {
 				if (e[j].dir == Right) {
-					e[j].x += e[j].speed * -e[j].cos;
+					e[j].pos.x += e[j].speed * -e[j].cos;
 				}
 				else {
-					e[j].x += e[j].speed * e[j].cos;
+					e[j].pos.x += e[j].speed * e[j].cos;
 				}
-				e[j].y += e[j].speed * e[j].sin;
+				e[j].pos.y += e[j].speed * e[j].sin;
 			}
 			else {
 				e[j].projectileTravel = false;
@@ -580,11 +575,11 @@ void refreshProjectileState(projectile p[], projectile e[], entity c, int* cpCou
 void refreshPlayerMovement(entity* p, tile t[], int*** m) {
 	int botTile, btID, upTile, upID, ltTile, ltID, rtTile, rtID, ctID;
 
-	p->hbX = (p->x + (p->width / 2)) - p->hbWidth / 2;
-	p->hbY = (p->y + (p->height - p->hbHeight));
+	p->hbX = (p->pos.x + (p->width / 2)) - p->hbWidth / 2;
+	p->hbY = (p->pos.y + (p->height - p->hbHeight));
 
-	p->x0 = p->x;
-	p->y0 = p->y;
+	p->x0 = p->pos.x;
+	p->y0 = p->pos.y;
 
 	p->tileX = p->hbX / tileSize;
 	p->tileY = p->hbY / tileSize;
@@ -604,18 +599,18 @@ void refreshPlayerMovement(entity* p, tile t[], int*** m) {
 	switch (p->dir) {
 	case Right:
 		if (!t[rtID].isSolid) {
-			p->x += p->vel_x;
+			p->pos.x += p->vel_x;
 		}
 		/*else {
-			player.x = (rtTile - 1) * tileSize;
+			player.pos.x = (rtTile - 1) * tileSize;
 		}*/
 		break;
 	case Left:
 		if (!t[ltID].isSolid) {
-			p->x -= p->vel_x;
+			p->pos.x -= p->vel_x;
 		}
-		if (t[m[gtile][p->tileY][(int)p->x / tileSize]].isSolid) {
-			p->x = p->x0;
+		if (t[m[gtile][p->tileY][(int)p->pos.x / tileSize]].isSolid) {
+			p->pos.x = p->x0;
 		}
 		break;
 	}
@@ -624,37 +619,37 @@ void refreshPlayerMovement(entity* p, tile t[], int*** m) {
 		p->vel_y = 1;
 	}
 
-	if (t[btID].isSolid && p->vel_y >= 0 && p->y >= botTile - tileSize) {
+	if (t[btID].isSolid && p->vel_y >= 0 && p->pos.y >= botTile - tileSize) {
 		p->onGround = true;
 		p->hitCeiling = false;
 		p->vel_y = 0;
 		p->hbY -= (int)p->hbY % (tileSize * (p->hbHeight / tileSize));
-		p->y = p->hbY - (p->height - p->hbHeight);
+		p->pos.y = p->hbY - (p->height - p->hbHeight);
 	}
 	else {
 		p->onGround = false;
 		p->vel_y += gravity;
-		p->y += p->vel_y;
+		p->pos.y += p->vel_y;
 	}
 }
 //if (t[btID].isSolid && p->vel_y >= 0) {
 //	p->onGround = true;
 //	p->vel_y = 0;
-//	p->y -= ((int)p->hbY % tileSize);
+//	p->pos.y -= ((int)p->hbY % tileSize);
 //}
 //else {
 //	p->onGround = false;
 //	p->vel_y += gravity;
-//	p->y += p->vel_y;
+//	p->pos.y += p->vel_y;
 //}
 void refreshPlayerMovement2(entity* p, tile t[], int*** m) {
 	int botTile, btID, upTile, upID, ltTile, ltID, rtTile, rtID, ctID;
 
-	p->hbX = (p->x + (p->width / 2)) - p->hbWidth / 2;
-	p->hbY = (p->y + (p->height - p->hbHeight));
+	p->hbX = (p->pos.x + (p->width / 2)) - p->hbWidth / 2;
+	p->hbY = (p->pos.y + (p->height - p->hbHeight));
 
-	p->x0 = p->x;
-	p->y0 = p->y;
+	p->x0 = p->pos.x;
+	p->y0 = p->pos.y;
 
 	p->tileX = p->hbX / tileSize;
 	p->tileY = p->hbY / tileSize;
@@ -674,37 +669,37 @@ void refreshPlayerMovement2(entity* p, tile t[], int*** m) {
 	switch (p->dir) {
 	case Right:
 		if (!t[rtID].isSolid) {
-			player.x += player.vel_x;
+			player.pos.x += player.vel_x;
 		}
 		break;
 	case Left:
 		if (!t[ltID].isSolid) {
-			currentTile.x = (player.x - player.vel_x) / tileSize;
-			currentTile.y = player.y / tileSize;
+			currentTile.x = (player.pos.x - player.vel_x) / tileSize;
+			currentTile.y = player.pos.y / tileSize;
 			ctID = m[gtile][currentTile.y][currentTile.x];
 			if (!t[ctID].isSolid) {
-				player.x -= player.vel_x;
+				player.pos.x -= player.vel_x;
 			}
 		}
 		break;
 	}
 
-	if (t[upID].isSolid && p->y >= upTile + tileSize && !p->hitCeiling && p->vel_y < 0) {
+	if (t[upID].isSolid && p->pos.y >= upTile + tileSize && !p->hitCeiling && p->vel_y < 0) {
 		p->vel_y = 1;
 		p->hitCeiling = true;
 	}
 
-	if (t[btID].isSolid && p->vel_y >= 0 && p->y >= botTile - tileSize) {
+	if (t[btID].isSolid && p->vel_y >= 0 && p->pos.y >= botTile - tileSize) {
 		p->onGround = true;
 		p->hitCeiling = false;
 		p->vel_y = 0;
 		p->hbY -= (int)p->hbY % (tileSize * (p->hbHeight / tileSize));
-		p->y = p->hbY - (p->height - p->hbHeight);
+		p->pos.y = p->hbY - (p->height - p->hbHeight);
 	}
 	else {
 		p->onGround = false;
 		p->vel_y += gravity;
-		p->y += p->vel_y;
+		p->pos.y += p->vel_y;
 	}
 }
 
@@ -717,17 +712,17 @@ void resetEnemy(entity e[], projectile p[]) {
 	
 	for (i = 0; i < enemyMax; i++) {
 		e[i].alive = false;
-		e[i].x = 0;
+		e[i].pos.x = 0;
 	}
 }
 
 void refreshEnemyMovement(entity* e, entity* p) {
-	e->hbX = (e->x + (e->width / 2)) - e->hbWidth / 2;
-	e->hbY = (e->y + (e->height - e->hbHeight));
+	e->hbX = (e->pos.x + (e->width / 2)) - e->hbWidth / 2;
+	e->hbY = (e->pos.y + (e->height - e->hbHeight));
 
 	if (e->attack == contact) {
-		if (e->x != p->hbX && e->alive) {
-			if (e->x > p->hbX) {
+		if (e->pos.x != p->hbX && e->alive) {
+			if (e->pos.x > p->hbX) {
 				if (e->vel_x >= -1.8) {
 					e->vel_x -= 0.2;
 				}
@@ -737,11 +732,11 @@ void refreshEnemyMovement(entity* e, entity* p) {
 					e->vel_x += 0.2;
 				}
 			}
-			e->x += e->vel_x;
+			e->pos.x += e->vel_x;
 		}
 
-		if (e->y != p->hbY && e->alive) {
-			if (e->y > p->hbY) {
+		if (e->pos.y != p->hbY && e->alive) {
+			if (e->pos.y > p->hbY) {
 				if (e->vel_y >= -1.8) {
 					e->vel_y -= 0.2;
 				}
@@ -751,14 +746,14 @@ void refreshEnemyMovement(entity* e, entity* p) {
 					e->vel_y += 0.2;
 				}
 			}
-			e->y += e->vel_y; 
+			e->pos.y += e->vel_y; 
 		}
 	}
 }
 
 void refreshCamera(float* cx, float* cy, entity p) {
-	*cx = (player.x + player.width / 2) - al_get_display_width(display) / 2;
-	*cy = (player.y + player.height / 2) - al_get_display_height(display) / 2;
+	*cx = (player.pos.x + player.width / 2) - al_get_display_width(display) / 2;
+	*cy = (player.pos.y + player.height / 2) - al_get_display_height(display) / 2;
 
 	if (*cx < 0) {
 		*cx = 0;
@@ -775,10 +770,10 @@ void hitboxDetection(projectile* a, entity e[], entity* p, objective* kc, int* h
 		for (j = 0; j < enemyMax; j++) {
 			for (i = 0; i < projectileMax; i++) {
 				if (a[i].projectileTravel) {
-					xAxisPivotA = a[i].x + a[i].width / 2;
-					yAxisPivotA = a[i].y + a[i].height / 2;
-					xAxisPivotB = e[j].x + e[j].width / 2;
-					yAxisPivotB = e[j].y + e[j].height / 2;
+					xAxisPivotA = a[i].pos.x + a[i].width / 2;
+					yAxisPivotA = a[i].pos.y + a[i].height / 2;
+					xAxisPivotB = e[j].pos.x + e[j].width / 2;
+					yAxisPivotB = e[j].pos.y + e[j].height / 2;
 
 					rightA = xAxisPivotA + a[i].hbWidth / 2;
 					leftA = xAxisPivotA - a[i].hbWidth / 2;
@@ -793,8 +788,8 @@ void hitboxDetection(projectile* a, entity e[], entity* p, objective* kc, int* h
 					if ((rightA > leftB&& rightA < rightB) || (leftA > leftB&& leftA < rightB)) {
 						if ((upA < downB && upA > upB) || (downA > upB&& downA < downB)) {
 							a[i].projectileTravel = false;
-							a[i].x = 0;
-							a[i].y = 0;
+							a[i].pos.x = 0;
+							a[i].pos.y = 0;
 
 							if (e[j].selectedWeapon == playerShot[i].type) {
 								e[j].life -= playerShot[i].damage + playerShot[i].damage * (randombytes_uniform(16) / 100.0);
@@ -802,7 +797,7 @@ void hitboxDetection(projectile* a, entity e[], entity* p, objective* kc, int* h
 
 							if (e[j].life <= 0) {
 								e[j].alive = false;
-								e[j].y = 0;
+								e[j].pos.y = 0;
 								e[j].vel_x = 0;
 								e[j].vel_y = 0;
 								e[j].life = 0;
@@ -824,10 +819,10 @@ void hitboxDetection(projectile* a, entity e[], entity* p, objective* kc, int* h
 	else {
 		for (i = 0; i < enemyProjectileMax; i++) {
 			if (a[i].projectileTravel) {
-				xAxisPivotA = a[i].x + a[i].width / 2;
-				yAxisPivotA = a[i].y + a[i].height / 2;
-				xAxisPivotB = p->x + p->width / 2;
-				yAxisPivotB = p->y + p->height / 2;
+				xAxisPivotA = a[i].pos.x + a[i].width / 2;
+				yAxisPivotA = a[i].pos.y + a[i].height / 2;
+				xAxisPivotB = p->pos.x + p->width / 2;
+				yAxisPivotB = p->pos.y + p->height / 2;
 
 				rightA = xAxisPivotA + a[i].hbWidth / 2;
 				leftA = xAxisPivotA - a[i].hbWidth / 2;
@@ -842,8 +837,8 @@ void hitboxDetection(projectile* a, entity e[], entity* p, objective* kc, int* h
 					if ((rightA > leftB&& rightA < rightB) || (leftA > leftB&& leftA < rightB)) {
 						if ((upA < downB && upA > upB) || (downA > upB&& downA < downB)) {
 							a[i].projectileTravel = false;
-							a[i].x = 0;
-							a[i].y = 0;
+							a[i].pos.x = 0;
+							a[i].pos.y = 0;
 
 							*iFC = *fc;
 							p->life -= a[i].damage;
@@ -863,10 +858,10 @@ void colisionDetection(entity* e, entity* p, int* iFC, int* fc) {
 	for (j = 0; j < enemyMax; j++) {
 		for (i = 0; i < projectileMax; i++) {
 
-			xAxisPivotP = p[i].x + p[i].width / 2;
-			yAxisPivotP = p[i].y + p[i].height / 2;
-			xAxisPivotE = e[j].x + e[j].width / 2;
-			yAxisPivotE = e[j].y + e[j].height / 2;
+			xAxisPivotP = p[i].pos.x + p[i].width / 2;
+			yAxisPivotP = p[i].pos.y + p[i].height / 2;
+			xAxisPivotE = e[j].pos.x + e[j].width / 2;
+			yAxisPivotE = e[j].pos.y + e[j].height / 2;
 
 			rightP = xAxisPivotP + p[i].hbWidth / 2;
 			leftP = xAxisPivotP - p[i].hbWidth / 2;
@@ -1379,25 +1374,25 @@ int main() {
 			}
 
 			if (event.type == ALLEGRO_EVENT_TIMER) {
-				if (player.x <= 0 + (al_get_display_width(display) / 2)) {
+				if (player.pos.x <= 0 + (al_get_display_width(display) / 2)) {
 					player.vel_x = 0;
-					player.x = 1 + (al_get_display_width(display) / 2);
+					player.pos.x = 1 + (al_get_display_width(display) / 2);
 				}
-				if (player.x >= (mapSize * tileSize) - (al_get_display_width(display) / 2)) {
+				if (player.pos.x >= (mapSize * tileSize) - (al_get_display_width(display) / 2)) {
 					player.vel_x = 0;
-					player.x = (mapSize * tileSize) - (1 + (al_get_display_width(display) / 2));
+					player.pos.x = (mapSize * tileSize) - (1 + (al_get_display_width(display) / 2));
 				}
-				if (player.y <= 0 + (al_get_display_height(display) / 2)) {
+				if (player.pos.y <= 0 + (al_get_display_height(display) / 2)) {
 					player.vel_y = 0;
-					player.y = 1 + (al_get_display_height(display) / 2);
+					player.pos.y = 1 + (al_get_display_height(display) / 2);
 				}
-				if (player.y >= (mapSize * tileSize) - (al_get_display_height(display) / 2)) {
+				if (player.pos.y >= (mapSize * tileSize) - (al_get_display_height(display) / 2)) {
 					player.vel_y = 0;
-					player.y = (mapSize * tileSize) - (1 + (al_get_display_height(display) / 2));
+					player.pos.y = (mapSize * tileSize) - (1 + (al_get_display_height(display) / 2));
 				}
 
-				player.x += player.vel_x;
-				player.y += player.vel_y;
+				player.pos.x += player.vel_x;
+				player.pos.y += player.vel_y;
 
 				refreshCamera(&cx, &cy, player);
 
@@ -1802,15 +1797,15 @@ int main() {
 							}
 
 							enemy[i].coord = j;
-							enemy[i].y = eSTy[j] * tileSize;
-							enemy[i].x = eSTx[j] * tileSize;
+							enemy[i].pos.y = eSTy[j] * tileSize;
+							enemy[i].pos.x = eSTx[j] * tileSize;
 							checkspawn[j] = true;
 
 							for (k = 0; k < enemyMax; k++) {
 								if (k == i) {
 									k++;
 								}
-								if (enemy[i].x != enemy[k].x && enemy[i].y != enemy[k].y) {
+								if (enemy[i].pos.x != enemy[k].pos.x && enemy[i].pos.y != enemy[k].pos.y) {
 									break;
 								}
 							}
@@ -2013,18 +2008,18 @@ int main() {
 					if (player.currentDir == Right) {
 						if (!player.isShooting) {
 							if ((runCycle / 7) % 2 == 0) {
-								al_draw_bitmap_region(playersheet, 0, 0, 48, 48, player.x, player.y, ALLEGRO_FLIP_HORIZONTAL);
+								al_draw_bitmap_region(playersheet, 0, 0, 48, 48, player.pos.x, player.pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 							else {
-								al_draw_bitmap_region(playersheet, 48, 0, 48, 48, player.x, player.y, ALLEGRO_FLIP_HORIZONTAL);
+								al_draw_bitmap_region(playersheet, 48, 0, 48, 48, player.pos.x, player.pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 						}
 						else {
 							if ((runCycle / 7) % 2 == 0) {
-								al_draw_bitmap_region(playersheet, 0, 48, 48, 48, player.x, player.y, ALLEGRO_FLIP_HORIZONTAL);
+								al_draw_bitmap_region(playersheet, 0, 48, 48, 48, player.pos.x, player.pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 							else {
-								al_draw_bitmap_region(playersheet, 48, 48, 48, 48, player.x, player.y, ALLEGRO_FLIP_HORIZONTAL);
+								al_draw_bitmap_region(playersheet, 48, 48, 48, 48, player.pos.x, player.pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 						}
 						//al_draw_filled_rectangle(player.hbX, player.hbY, player.hbX + player.hbWidth, player.hbY + player.hbHeight, al_map_rgba(0, 0, 255, 50));
@@ -2032,18 +2027,18 @@ int main() {
 					else {
 						if (!player.isShooting) {
 							if ((runCycle / 7) % 2 == 0) {
-								al_draw_bitmap_region(playersheet, 0, 0, 48, 48, player.x, player.y, 0);
+								al_draw_bitmap_region(playersheet, 0, 0, 48, 48, player.pos.x, player.pos.y, 0);
 							}
 							else {
-								al_draw_bitmap_region(playersheet, 48, 0, 48, 48, player.x, player.y, 0);
+								al_draw_bitmap_region(playersheet, 48, 0, 48, 48, player.pos.x, player.pos.y, 0);
 							}
 						}
 						else {
 							if ((runCycle / 7) % 2 == 0) {
-								al_draw_bitmap_region(playersheet, 0, 48, 48, 48, player.x, player.y, 0);
+								al_draw_bitmap_region(playersheet, 0, 48, 48, 48, player.pos.x, player.pos.y, 0);
 							}
 							else {
-								al_draw_bitmap_region(playersheet, 48, 48, 48, 48, player.x, player.y, 0);
+								al_draw_bitmap_region(playersheet, 48, 48, 48, 48, player.pos.x, player.pos.y, 0);
 							}
 						}
 						//al_draw_filled_rectangle(player.hbX, player.hbY, player.hbX + player.hbWidth, player.hbY + player.hbHeight, al_map_rgba(0, 0, 255, 50));
@@ -2053,17 +2048,17 @@ int main() {
 				for (i = 0; i < enemyMax; i++) {
 					if (enemy[i].alive) {
 						if (enemy[i].selectedWeapon == antiMycotic) {
-							if (enemy[i].x < player.x)
-								al_draw_tinted_scaled_rotated_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width, 0, enemy[i].width, enemy[i].height, al_map_rgb_f(1, 1, 1), enemy[i].width / 2, enemy[i].height / 2, enemy[i].x, enemy[i].y, 1, 1, enemy[i].rotate, ALLEGRO_FLIP_HORIZONTAL);
+							if (enemy[i].pos.x < player.pos.x)
+								al_draw_tinted_scaled_rotated_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width, 0, enemy[i].width, enemy[i].height, al_map_rgb_f(1, 1, 1), enemy[i].width / 2, enemy[i].height / 2, enemy[i].pos.x, enemy[i].pos.y, 1, 1, enemy[i].rotate, ALLEGRO_FLIP_HORIZONTAL);
 							else
-								al_draw_tinted_scaled_rotated_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width, 0, enemy[i].width, enemy[i].height, al_map_rgb_f(1, 1, 1), enemy[i].width / 2, enemy[i].height / 2, enemy[i].x, enemy[i].y, 1, 1, enemy[i].rotate, 0);
+								al_draw_tinted_scaled_rotated_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width, 0, enemy[i].width, enemy[i].height, al_map_rgb_f(1, 1, 1), enemy[i].width / 2, enemy[i].height / 2, enemy[i].pos.x, enemy[i].pos.y, 1, 1, enemy[i].rotate, 0);
 						}
 						else {
-							if (enemy[i].x < player.x) {
-								al_draw_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width + 1, enemy[i].selectedWeapon * enemy[i].height, enemy[i].width, enemy[i].height, enemy[i].x, enemy[i].y, ALLEGRO_FLIP_HORIZONTAL);
+							if (enemy[i].pos.x < player.pos.x) {
+								al_draw_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width + 1, enemy[i].selectedWeapon * enemy[i].height, enemy[i].width, enemy[i].height, enemy[i].pos.x, enemy[i].pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 							else {
-								al_draw_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width + 1, enemy[i].selectedWeapon * enemy[i].height, enemy[i].width, enemy[i].height, enemy[i].x, enemy[i].y, 0);
+								al_draw_bitmap_region(enemysheet, enemy[i].selectedWeapon * enemy[i].width + 1, enemy[i].selectedWeapon * enemy[i].height, enemy[i].width, enemy[i].height, enemy[i].pos.x, enemy[i].pos.y, 0);
 							}
 						}
 					}
@@ -2074,19 +2069,19 @@ int main() {
 						setProjectileColor(&playerShot[i]);
 						if (playerShot[i].dir == Right) {
 							if (playerShot[i].angle == 0) {
-								al_draw_tinted_bitmap(playerShotTemplate[0], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].x, playerShot[i].y, ALLEGRO_FLIP_HORIZONTAL);
+								al_draw_tinted_bitmap(playerShotTemplate[0], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].pos.x, playerShot[i].pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 							else {
-								al_draw_tinted_bitmap(playerShotTemplate[1], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].x, playerShot[i].y, ALLEGRO_FLIP_HORIZONTAL);
+								al_draw_tinted_bitmap(playerShotTemplate[1], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].pos.x, playerShot[i].pos.y, ALLEGRO_FLIP_HORIZONTAL);
 							}
 							
 						}
 						else {
 							if (playerShot[i].angle == 0) {
-								al_draw_tinted_bitmap(playerShotTemplate[0], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].x, playerShot[i].y, 0);
+								al_draw_tinted_bitmap(playerShotTemplate[0], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].pos.x, playerShot[i].pos.y, 0);
 							}
 							else {
-								al_draw_tinted_bitmap(playerShotTemplate[1], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].x, playerShot[i].y, 0);
+								al_draw_tinted_bitmap(playerShotTemplate[1], al_map_rgb(playerShot[i].r, playerShot[i].g, playerShot[i].b), playerShot[i].pos.x, playerShot[i].pos.y, 0);
 							}
 						}
 					}
@@ -2094,8 +2089,8 @@ int main() {
 
 				for (i = 0; i < enemyProjectileMax; i++) {
 					if (enemyShot[i].projectileTravel) {
-						al_draw_filled_circle(enemyShot[i].x, enemyShot[i].y, enemyShot[i].width / 2, al_map_rgb(255, 165, 0));
-						al_draw_filled_circle(enemyShot[i].x, enemyShot[i].y, (enemyShot[i].width / 2) - 2, al_map_rgb(255, 255, 255));
+						al_draw_filled_circle(enemyShot[i].pos.x, enemyShot[i].pos.y, enemyShot[i].width / 2, al_map_rgb(255, 165, 0));
+						al_draw_filled_circle(enemyShot[i].pos.x, enemyShot[i].pos.y, (enemyShot[i].width / 2) - 2, al_map_rgb(255, 255, 255));
 					}
 				}
 
