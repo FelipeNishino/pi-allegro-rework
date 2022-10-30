@@ -12,6 +12,7 @@
 #include <allegro5/bitmap.h>
 #include <allegro5/color.h>
 #include "logger.h"
+#include "queue.h"
 
 #define FPS 60
 #define windowWidth 1366
@@ -19,7 +20,6 @@
 #define worldWidth 1000
 #define worldHeight 1000
 
-#define queueSize 5
 #define projectileVelocity 0.6
 #define projectileAccel 0.25
 #define projectileOffset 10
@@ -99,11 +99,6 @@ enum {
 	pspawn,
 	finish
 };
-
-typedef struct TQueue {
-	int tamanho, inicio, fim, total;
-	char fila[queueSize];
-} queue;
 
 typedef struct posicao {
 	int x;
@@ -293,64 +288,6 @@ int initialize() {
 	al_start_timer(timer);
 
 	return 0;
-}
-
-void initQueue(queue* f) {
-	int i;
-	f->inicio = 0;
-	f->fim = 0;
-	f->total = 0;
-	f->tamanho = queueSize;
-	/*for (i = 0; i < queueSize; i++) {
-		f->fila[i] = "";
-	}*/
-}
-
-bool isQueueEmpty(queue* f) {
-	if (f->total == 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-bool isQueueFull(queue* f) {
-	if (f->total >= f->tamanho) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-void enqueue(queue* f, char val[]) {
-	if (!isQueueFull(f)) {
-		f->fila[f->fim] = val[0];
-		f->fim = f->fim + 1;
-		f->total = f->total + 1;
-		if (f->fim >= f->tamanho) {
-			f->fim = 0;
-		}
-	}
-}
-
-char dequeue(queue* f) {
-	char x = -1;
-
-	if (!isQueueEmpty(f)) {
-		x = f->fila[f->inicio];
-		f->inicio = f->inicio + 1;
-		f->total = f->total - 1;
-		if (f->inicio >= f->tamanho) {
-			f->inicio = 0;
-		}
-	}
-	return x;
-}
-
-char firstIn(queue* f) {
-	return f->fila[f->inicio];
 }
 
 float absF(float* x) {
@@ -996,7 +933,7 @@ int main() {
 	initialize();
 	logger_log(LOG_INFO, "Finished initializing core systems");
 	
-	initQueue(&devChecker);
+	queue_init(&devChecker, 5);
 
 	tiles[air].isSolid = false;
 	tiles[air].id = air;
@@ -1139,29 +1076,18 @@ int main() {
 			al_wait_for_event(evQueue, &event);
 
 			if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-				debugInput[0] = event.keyboard.unichar;
 
-				if (isQueueFull(&devChecker)) {
-					dequeue(&devChecker);
-					enqueue(&devChecker, debugInput);
-				}
-				else {
-					enqueue(&devChecker, debugInput);
-				}
-				j = 0;
+				if (queue_is_full(&devChecker)) {
+					queue_dequeue(&devChecker);
+				}					
+				queue_enqueue(&devChecker, event.keyboard.unichar);
+				
 
-				for (i = devChecker.inicio; j < devChecker.total; i++) {
-					if (i >= devChecker.tamanho) {
-						i = 0;
-					}
-					if (devChecker.fila[i] != debugTest[j]) {
-						break;
-					}
-					if (j == 4) {
-						devMode = true;
-					}
-					j++;
+				i = 0;
+				while (devChecker.queue[(devChecker.start + i) % devChecker.capacity] == debugTest[i]) {
+					i++;
 				}
+				devMode = i == 4;
 			}
 			if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 				switch (event.keyboard.keycode) {
