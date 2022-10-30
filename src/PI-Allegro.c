@@ -40,6 +40,7 @@
 #define Right 1
 #define gravity 0.275
 #define SODIUM_STATIC
+#define TILE_COUNT 17
 
 enum {
 	antiVirus,
@@ -211,7 +212,7 @@ projectile playerTripleShot[projectileMax];
 entity enemy[enemyMax];
 projectile enemyShot[enemyProjectileMax];
 entity enemyShooter;
-tile tiles[17];
+tile tiles[TILE_COUNT];
 objective killCount;
 objective endurance;
 pos mouse;
@@ -860,6 +861,14 @@ void exitGame(ALLEGRO_EVENT ev, bool* loop, bool* exit_control) {
 
 void createTileAtlas(void) {
 	tileAtlas = al_load_bitmap("complete.png"); 
+void set_tiles() {
+	int i = 0;
+
+	for (; i < TILE_COUNT; i++) {
+		tiles[i].isSolid = i != air;
+		tiles[i].id = i;
+	}
+	
 }
 
 int main() {
@@ -879,56 +888,7 @@ int main() {
 	
 	queue_init(&devChecker, 5);
 
-	tiles[air].isSolid = false;
-	tiles[air].id = air;
-
-	tiles[chaoce].isSolid = true;
-	tiles[chaoce].id = chaoce;
-
-	tiles[chaoc].isSolid = true;
-	tiles[chaoc].id = chaoc;
-
-	tiles[chaocd].isSolid = true;
-	tiles[chaocd].id = chaocd;
-
-	tiles[chao1wt].isSolid = true;
-	tiles[chao1wt].id = chao1wt;
-
-	tiles[chaome].isSolid = true;
-	tiles[chaome].id = chaome;
-
-	tiles[chaom].isSolid = true;
-	tiles[chaom].id = chaom;
-	
-	tiles[chaomd].isSolid = true;
-	tiles[chaomd].id = chaomd;
-	
-	tiles[chao1wm].isSolid = true;
-	tiles[chao1wm].id = chao1wm;
-
-	tiles[chaobe].isSolid = true;
-	tiles[chaobe].id = chaobe;
-	
-	tiles[chaob].isSolid = true;
-	tiles[chaob].id = chaob;
-	
-	tiles[chaobd].isSolid = true;
-	tiles[chaobd].id = chaobd;
-	
-	tiles[chao1wb].isSolid = true;
-	tiles[chao1wb].id = chao1wb;
-	
-	tiles[chao1he].isSolid = true;
-	tiles[chao1he].id = chao1he;
-	
-	tiles[chao1hm].isSolid = true;
-	tiles[chao1hm].id = chao1hm;
-	
-	tiles[chao1hd].isSolid = true;
-	tiles[chao1hd].id = chao1hd;
-
-	tiles[chaounico].isSolid = true;
-	tiles[chaounico].id = chaounico;
+	set_tiles();
 
 	logger_log(LOG_DEBUG, "Loading stage images");
 
