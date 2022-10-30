@@ -222,35 +222,32 @@ pos mouse;
 pos editorClick;
 pos currentTile;
 
-void must_init(int test, const char *description)
+void init_component(int test, const char *description)
 {
     if(test) return;
 
 	logger_log(LOG_ERROR, "couldn't initialize %s\n", description);
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 int initialize() {
 	logger_log(LOG_DEBUG, "Initializing sodium");
-	sodium_init();
-
+	init_component(sodium_init() >= 0, "sodium");
 	logger_log(LOG_DEBUG, "Initializing allegro ");
-	must_init(al_init(), "allegro core");
+	init_component(al_init(), "allegro core");
 	logger_log(LOG_DEBUG, "Initializing allegro_image ");
-	must_init(al_init_image_addon(), "allegro_image");
+	init_component(al_init_image_addon(), "allegro_image");
 	logger_log(LOG_DEBUG, "Initializing allegro_audio ");
-	must_init(al_install_audio(), "allegro_audio");
+	init_component(al_install_audio(), "allegro_audio");
 	logger_log(LOG_DEBUG, "Initializing allegro_acodec ");
-	must_init(al_init_acodec_addon(), "allegro_acodec");
+	init_component(al_init_acodec_addon(), "allegro_acodec");
 	logger_log(LOG_DEBUG, "Initializing allegro_font ");
-	must_init(al_init_font_addon(), "allegro_font");
+	init_component(al_init_font_addon(), "allegro_font");
 	logger_log(LOG_DEBUG, "Initializing allegro_ttf ");
-	must_init(al_init_ttf_addon(), "allegro_ttf");
+	init_component(al_init_ttf_addon(), "allegro_ttf");
 	logger_log(LOG_DEBUG, "Initializing allegro_primitives ");
-	must_init(al_init_primitives_addon(), "allegro_primitives");
+	init_component(al_init_primitives_addon(), "allegro_primitives");
 	
-
-	logger_log(LOG_DEBUG, "Set default mixer");
 	al_get_default_mixer();
 
 	logger_log(LOG_DEBUG, "Set draw timer to %d fps", FPS);
