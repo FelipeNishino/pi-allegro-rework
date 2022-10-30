@@ -870,14 +870,14 @@ void set_tiles() {
 	
 }
 
-void load_atlas(ALLEGRO_BITMAP* atlas, char* filename) {
+void load_sprite(ALLEGRO_BITMAP* sprite, char* filename) {
 	Path file = {.val = filename, .length = strlen(filename)};
 	Path path = assets_path[sheets];
 	char* fullname = malloc((file.length + path.length + 1) * sizeof(char));
 	strncpy(fullname, path.val, path.length);
 	strncat(fullname, file.val, file.length);
-	atlas = al_load_bitmap(fullname);
-	al_convert_mask_to_alpha(atlas, al_map_rgb(255, 0, 255));
+	sprite = al_load_bitmap(fullname);
+	al_convert_mask_to_alpha(sprite, al_map_rgb(255, 0, 255));
 }
 
 int main() {
@@ -908,9 +908,9 @@ int main() {
 	al_convert_mask_to_alpha(stage[backgroundL3], al_map_rgb(255, 0, 255));
 
 	logger_log(LOG_DEBUG, "Loading tilesheets");
-	load_atlas(tileAtlas, "tilesheet.png");
-	load_atlas(playersheet, "playersheet.png");
-	load_atlas(enemysheet, "enemysheet.png");
+	load_sprite(tileAtlas, "tilesheet.png");
+	load_sprite(playersheet, "playersheet.png");
+	load_sprite(enemysheet, "enemysheet.png");
 
 	logger_log(LOG_DEBUG, "Loading menu assets");
 	titulo = al_load_bitmap("assets/images/Menu/title.png");
@@ -927,14 +927,9 @@ int main() {
 	antim = al_load_bitmap("assets/images/Menu/TelasProntas/antim.png");
 	
 	logger_log(LOG_DEBUG, "Loading enemy sprites...");
-	enemySprite[antiBiotic] = al_load_bitmap("assets/images/bacteria.png");
-	al_convert_mask_to_alpha(enemySprite[antiBiotic], al_map_rgb(255, 0, 255));
-
-	enemySprite[antiMycotic] = al_load_bitmap("assets/images/fungo.png");
-	al_convert_mask_to_alpha(enemySprite[antiMycotic], al_map_rgb(255, 0, 255));
-
-	enemySprite[antiVirus] = al_load_bitmap("assets/images/virus.png");
-	al_convert_mask_to_alpha(enemySprite[antiVirus], al_map_rgb(255, 0, 255));
+	load_sprite(enemySprite[antiBiotic], "bacteria.png");
+	load_sprite(enemySprite[antiMycotic], "bacteria.png");
+	load_sprite(enemySprite[antiVirus], "bacteria.png");
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
 	al_play_sample(bgm1, 1, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
