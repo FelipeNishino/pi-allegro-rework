@@ -12,6 +12,7 @@
 #include <allegro5/bitmap.h>
 #include <allegro5/color.h>
 #include <sodium.h>
+#include <string.h>
 #include "logger.h"
 #include "queue.h"
 #include "physics.h"
@@ -875,8 +876,6 @@ void exitGame(ALLEGRO_EVENT ev, bool* loop, bool* exit_control) {
 	}
 }
 
-void createTileAtlas(void) {
-	tileAtlas = al_load_bitmap("complete.png"); 
 void set_tiles() {
 	int i = 0;
 
@@ -885,6 +884,16 @@ void set_tiles() {
 		tiles[i].id = i;
 	}
 	
+}
+
+void load_atlas(ALLEGRO_BITMAP* atlas, char* filename) {
+	Path file = {.val = filename, .length = strlen(filename)};
+	Path path = assets_path[sheets];
+	char* fullname = malloc((file.length + path.length + 1) * sizeof(char));
+	strncat(fullname, path.val, path.length);
+	strncat(fullname, file.val, file.length);
+	atlas = al_load_bitmap(fullname);
+	al_convert_mask_to_alpha(atlas, al_map_rgb(255, 0, 255));
 }
 
 int main() {
@@ -915,12 +924,9 @@ int main() {
 	al_convert_mask_to_alpha(stage[backgroundL3], al_map_rgb(255, 0, 255));
 
 	logger_log(LOG_DEBUG, "Loading tilesheets");
-	tileAtlas = al_load_bitmap("assets/images/tilesheet.png");
-	al_convert_mask_to_alpha(tileAtlas, al_map_rgb(255, 0, 255));
-	playersheet = al_load_bitmap("assets/images/playersheet.png");
-	al_convert_mask_to_alpha(playersheet, al_map_rgb(255, 0, 255));
-	enemysheet = al_load_bitmap("assets/images/enemysheet.png");
-	al_convert_mask_to_alpha(enemysheet, al_map_rgb(255, 0, 255));
+	load_atlas(tileAtlas, "tilesheet.png");
+	load_atlas(playersheet, "playersheet.png");
+	load_atlas(enemysheet, "enemysheet.png");
 
 	logger_log(LOG_DEBUG, "Loading menu assets");
 	titulo = al_load_bitmap("assets/images/Menu/title.png");
