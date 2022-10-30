@@ -386,24 +386,7 @@ int initplayer(entity* c, ALLEGRO_BITMAP* player, int* eSTCount, int*** m) {
 	return 0;
 }
 
-
-/*pos setEnemySpawn(int eSTCount, int*** m) {
-	int i, j;
-
-	pos* eSP = malloc(eSTCount * sizeof(pos));;
-
-	for (i = 0; i < mapSize; i++) {
-		for (j = 0; j < mapSize; j++) {
-			if (m[ftile][i][j] == espawn) {
-
-			}
-		}
-	}
-
-	return eSP;
-}*/
-
-int initenemya(entity* e, ALLEGRO_BITMAP* enemy[], int type, int stage) {
+int initenemy(entity* e, ALLEGRO_BITMAP* enemy[], int type, int stage) {
 	int aux = 0;
 
 	e->attack = type;
@@ -430,6 +413,22 @@ int initenemya(entity* e, ALLEGRO_BITMAP* enemy[], int type, int stage) {
 
 	return 0;
 }
+
+/*pos setEnemySpawn(int eSTCount, int*** m) {
+	int i, j;
+
+	pos* eSP = malloc(eSTCount * sizeof(pos));;
+
+	for (i = 0; i < mapSize; i++) {
+		for (j = 0; j < mapSize; j++) {
+			if (m[ftile][i][j] == espawn) {
+
+			}
+		}
+	}
+
+	return eSP;
+}*/
 
 void pShoot(projectile* p, entity* c) {
 	p->speed = projectileVelocity;
@@ -1729,7 +1728,7 @@ int main() {
 				case 1:
 					for (i = 0; i < enemyMax; i++) {
 						if (!enemy[i].alive && frameCount - enemyDeadFC[i] >= FPS && frameCount % 90 == 0) {
-							initenemya(&enemy[i], &enemySprite, shooter, 1);
+							initenemy(&enemy[i], &enemySprite, shooter, 1);
 							
 							spawntimeout = 0;
 
@@ -1776,7 +1775,7 @@ int main() {
 					endurance.count--;
 					for (i = 0; i < enemyMax; i++) {
 						if (!enemy[i].alive && frameCount - enemyDeadFC[i] >= FPS && frameCount % 90 == 0) {
-							initenemya(&enemy[i], &enemySprite, contact, 2);
+							initenemy(&enemy[i], &enemySprite, contact, 2);
 							enemyDmgGauge = 0;
 							break;
 						}
