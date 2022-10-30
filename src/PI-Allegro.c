@@ -892,16 +892,16 @@ void colisionDetection(entity* e, entity* p, int* iFC, int* fc) {
 	}
 }
 
-void exitGame(ALLEGRO_EVENT ev, bool* loop, bool* exit) {
+void exitGame(ALLEGRO_EVENT ev, bool* loop, bool* exit_control) {
 	switch (ev.type) {
 	case ALLEGRO_EVENT_DISPLAY_CLOSE:
 		*loop = false;
-		*exit = true;
+		*exit_control = true;
 		break;
 	case ALLEGRO_EVENT_KEY_DOWN:
 		if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
 			*loop = false;
-			*exit = true;
+			*exit_control = true;
 		}
 		break;
 	}
@@ -918,8 +918,8 @@ int main() {
 	int *eSTx, *eSTy;
 	int*** tileset = NULL;
 	float cx = 0, cy = 0;
-	char mousePos[25] = "", debugInput[2] = "", debugTest[6] = "debug", enemyLifeGauge[5], ptx[8], pty[8], objText[25];
-	bool gameLoop = false, menuLoop = true, stageLoop = false, toggleStartText = false, exit = false, devMode = false, modDown = false, levelEditor = false, exitStage = false;
+	char mousePos[25] = "", debugTest[6] = "debug", enemyLifeGauge[5], ptx[8], pty[8], objText[25];
+	bool gameLoop = false, menuLoop = true, stageLoop = false, toggleStartText = false, exit_control = false, devMode = false, modDown = false, levelEditor = false, exitStage = false;
 	bool* checkspawn;
 	queue devChecker;
 
@@ -1027,7 +1027,7 @@ int main() {
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
 	al_play_sample(bgm1, 1, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
-	while (!exit) {
+	while (!exit_control) {
 		if (exitStage)	{
 			al_stop_samples();
 			al_play_sample(bgm1, 1, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
@@ -1136,7 +1136,7 @@ int main() {
 			if (event.type == ALLEGRO_EVENT_TIMER) {
 				frameCount++;
 			}
-			exitGame(event, &stageLoop, &exit);
+			exitGame(event, &stageLoop, &exit_control);
 
 			if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
 				al_acknowledge_resize(display);
@@ -1276,7 +1276,6 @@ int main() {
 			checkspawn[i] = false;
 		}
 
-
 		k = 0;
 		for (i = 0; i < mapSize; i++) {
 			for (j = 0; j < mapSize; j++) {
@@ -1399,7 +1398,7 @@ int main() {
 				frameCount++;
 			}
 
-			exitGame(event, &levelEditor, &exit);
+			exitGame(event, &levelEditor, &exit_control);
 
 			if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 				switch (event.keyboard.keycode) {
@@ -1501,7 +1500,7 @@ int main() {
 				}
 			}
 
-			exitGame(event, &gameLoop, &exit);
+			exitGame(event, &gameLoop, &exit_control);
 
 			if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
 				al_acknowledge_resize(display);
@@ -1911,7 +1910,7 @@ int main() {
 				}
 			}
 
-			exitGame(event, &gameLoop, &exit);
+			exitGame(event, &gameLoop, &exit_control);
 
 			if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
 				al_acknowledge_resize(display);
