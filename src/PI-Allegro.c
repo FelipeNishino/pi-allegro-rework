@@ -45,6 +45,19 @@
 #define SODIUM_STATIC
 #define TILE_COUNT 17
 
+typedef struct path {
+	char* val;
+	int length;
+} Path;
+
+enum path_identifier {
+	sheets
+};
+
+static const Path assets_path[] = {
+	{.val = "assets/images/sheets/", .length = 21},
+};
+
 enum {
 	antiVirus,
 	antiBiotic,
