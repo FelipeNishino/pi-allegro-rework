@@ -16,6 +16,9 @@
 #include "queue.h"
 #include "physics.h"
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 #define FPS 60
 #define windowWidth 1366
 #define windowHeight 768
