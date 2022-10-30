@@ -874,7 +874,7 @@ void load_atlas(ALLEGRO_BITMAP* atlas, char* filename) {
 	Path file = {.val = filename, .length = strlen(filename)};
 	Path path = assets_path[sheets];
 	char* fullname = malloc((file.length + path.length + 1) * sizeof(char));
-	strncat(fullname, path.val, path.length);
+	strncpy(fullname, path.val, path.length);
 	strncat(fullname, file.val, file.length);
 	atlas = al_load_bitmap(fullname);
 	al_convert_mask_to_alpha(atlas, al_map_rgb(255, 0, 255));
