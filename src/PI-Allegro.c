@@ -1224,40 +1224,40 @@ int main() {
 
 		tileset = (int***)malloc(2 * sizeof(int**));
 		
-		if (tileset) {
-			for (i = 0; i < 2; i++) {
-				tileset[i] = (int**)malloc(mapSize * sizeof(int*));
-			}
-			
-			for (i = 0; i < 2; ++i) {
-				for (j = 0; j < mapSize; j++) {
-					tileset[i][j] = (int*)malloc(mapSize * sizeof(int));
-				}
-			}
-
-			switch (stageSelect) {
-			case 1:
-				al_stop_samples();
-				tm = fopen("assets/tilemaps/tilemap1.txt", "r");
-				al_play_sample(bgm2, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
-				break;
-			case 2:
-				al_stop_samples();
-				tm = fopen("assets/tilemaps/tilemap2.txt", "r");
-				al_play_sample(bgm3, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
-				break;
-			}
-
-			for (i = 0; i < 2; i++) {
-				for (j = 0; j < mapSize; j++) {
-					for (k = 0; k < mapSize; k++) {
-						fscanf(tm, "%d", &tileset[i][j][k]);
-					}
-				}
-			}
-
-			fclose(tm);
+		if (!tileset) {
+			logger_log(LOG_ERROR, "Error declaring tileset matrix");
+			exit(EXIT_FAILURE);
 		}
+
+		for (i = 0; i < 2; i++) {
+			tileset[i] = (int**)malloc(mapSize * sizeof(int*));
+			for (j = 0; j < mapSize; j++) {
+				tileset[i][j] = (int*)malloc(mapSize * sizeof(int));
+			}
+		}
+
+		switch (stageSelect) {
+		case 1:
+			al_stop_samples();
+			tm = fopen("assets/tilemaps/tilemap1.txt", "r");
+			al_play_sample(bgm2, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
+			break;
+		case 2:
+			al_stop_samples();
+			tm = fopen("assets/tilemaps/tilemap2.txt", "r");
+			al_play_sample(bgm3, 0.25, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
+			break;
+		}
+
+		for (i = 0; i < 2; i++) {
+			for (j = 0; j < mapSize; j++) {
+				for (k = 0; k < mapSize; k++) {
+					fscanf(tm, "%d", &tileset[i][j][k]);
+				}
+			}
+		}
+
+		fclose(tm);
 
 		initplayer(&player, playersheet, &enemySpawnTileCount, tileset);
 
