@@ -503,41 +503,32 @@ void eShoot(projectile* p, entity* e, entity* c, int fc) {
 }
 
 void refreshProjectileState(projectile p[], projectile e[], entity c, int* cpCount, int* epCount, int cx, int cy) {
-	int j;
+	int i = -1, j, offset = 0;
 
-	for (j = 0; j < projectileMax; j++) {
-		if (p[j].projectileTravel) {
-			if (p[j].pos.x < cx + al_get_display_width(display) && p[j].pos.x > cx&& p[j].pos.y < cy + al_get_display_height(display) && p[j].pos.y > cy) {
-				if (p[j].dir == Right)
-					p[j].pos.x += p[j].speed;
-				else
-					p[j].pos.x -= p[j].speed;
-			}
-			else {
-				p[j].projectileTravel = false;
-				*cpCount -= 1;
-			}
-			if (p[j].speed <= 20) {
-				p[j].speed += p[j].accel;
-			}
+	Size display_size;
+	display_size.width = al_get_display_width(display);
+	display_size.height = al_get_display_height(display);
+	projectile *p_list = p;
+
+	j = -1;
+	while (j < projectileMax + enemyProjectileMax) {
+		j++;
+		i++;
+		if (!p_list[i].projectileTravel) continue;
+
+		if (p_list[i].pos.x < cx + display_size.width && p_list[i].pos.x > cx && p_list[i].pos.y < cy + display_size.height && p_list[i].pos.y > cy) {
+			p_list[i].pos.x += (p_list[i].dir == Right ? p_list[i].speed : -p_list[i].speed);
 		}
-	}
-
-	for (j = 0; j < enemyProjectileMax; j++) {
-		if (e[j].projectileTravel) {
-			if (e[j].pos.x < cx + al_get_display_width(display) && e[j].pos.x > cx&& e[j].pos.y < cy + al_get_display_height(display) && e[j].pos.y > cy) {
-				if (e[j].dir == Right) {
-					e[j].pos.x += e[j].speed * -e[j].cos;
-				}
-				else {
-					e[j].pos.x += e[j].speed * e[j].cos;
-				}
-				e[j].pos.y += e[j].speed * e[j].sin;
-			}
-			else {
-				e[j].projectileTravel = false;
-				*epCount -= 1;
-			}
+		else {
+			p_list[i].projectileTravel = false;
+			*cpCount -= 1;
+		}
+		if (p_list[i].speed <= 20) {
+			p_list[i].speed += p_list[i].accel;
+		}
+		if (j == projectileMax - 1) {
+			p_list = e;
+			i = -1;
 		}
 	}
 }
