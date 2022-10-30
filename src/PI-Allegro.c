@@ -721,15 +721,8 @@ void refreshEnemyMovement(entity* e, entity* p) {
 }
 
 void refreshCamera(float* cx, float* cy, entity p) {
-	*cx = (player.pos.x + player.width / 2) - al_get_display_width(display) / 2;
-	*cy = (player.pos.y + player.height / 2) - al_get_display_height(display) / 2;
-
-	if (*cx < 0) {
-		*cx = 0;
-	}
-	if (*cy < 0) {
-		*cy = 0;
-	}
+	*cx = MIN(0, (player.pos.x + player.width / 2) - al_get_display_width(display) / 2);
+	*cy = MIN(0, (player.pos.y + player.height / 2) - al_get_display_height(display) / 2);
 }
 
 void hitboxDetection(projectile* a, entity e[], entity* p, objective* kc, int* hitI, int* pCount, int* iFC, int* edFC, int* fc, bool* sc) {
