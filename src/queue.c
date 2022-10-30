@@ -28,6 +28,16 @@ void queue_enqueue(queue* q, char val) {
 	}
 }
 
+void queue_force_enqueue(queue* q, char val) {
+	if (queue_is_full(q)) queue_dequeue(q);
+	
+	q->queue[q->end++] = val;
+	q->size++;
+	if (q->end >= q->capacity) {
+		q->end = 0;
+	}	
+}
+
 char queue_dequeue(queue* q) {
 	char x = ' ';
 

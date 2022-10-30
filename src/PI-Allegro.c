@@ -980,13 +980,8 @@ int main() {
 			ALLEGRO_EVENT event;
 			al_wait_for_event(evQueue, &event);
 
-			if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
-
-				if (queue_is_full(&devChecker)) {
-					queue_dequeue(&devChecker);
-				}					
-				queue_enqueue(&devChecker, event.keyboard.unichar);
-				
+			if (event.type == ALLEGRO_EVENT_KEY_CHAR) {		
+				queue_force_enqueue(&devChecker, event.keyboard.unichar);
 
 				i = 0;
 				while (devChecker.queue[(devChecker.start + i) % devChecker.capacity] == debugTest[i]) {

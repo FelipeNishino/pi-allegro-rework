@@ -12,6 +12,7 @@ void queue_init(queue* q, int size);
 bool queue_is_empty(queue* q);
 bool queue_is_full(queue* q);
 void queue_enqueue(queue* q, char val);
+void queue_force_enqueue(queue* q, char val);
 char queue_dequeue(queue* q);
 char queue_peek(queue* q);
 
