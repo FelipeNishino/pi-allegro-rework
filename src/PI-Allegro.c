@@ -934,18 +934,12 @@ int main() {
 	antiv = al_load_bitmap("assets/images/Menu/TelasProntas/antiv.png");
 	antib = al_load_bitmap("assets/images/Menu/TelasProntas/antib.png");
 	antim = al_load_bitmap("assets/images/Menu/TelasProntas/antim.png");
-
-	logger_log(LOG_DEBUG, "Loading bacteria sprites...");
+	
+	logger_log(LOG_DEBUG, "Loading enemy sprites...");
 	enemySprite[antiBiotic] = al_load_bitmap("assets/images/bacteria.png");
-	logger_log(LOG_DEBUG, "Getting pixel");
-	ALLEGRO_COLOR c = al_get_pixel(enemySprite[antiBiotic], 0, 0);
-	fprintf(stderr, "r %.2f g %.2f b %.2f \n", c.r, c.g, c.b);
-	logger_log(LOG_DEBUG, "Masking bacteria sprites...");
 	al_convert_mask_to_alpha(enemySprite[antiBiotic], al_map_rgb(255, 0, 255));
 
-	logger_log(LOG_DEBUG, "Loading fungi sprites...");
 	enemySprite[antiMycotic] = al_load_bitmap("assets/images/fungo.png");
-	logger_log(LOG_DEBUG, "Masking fungi sprites...");
 	al_convert_mask_to_alpha(enemySprite[antiMycotic], al_map_rgb(255, 0, 255));
 
 	enemySprite[antiVirus] = al_load_bitmap("assets/images/virus.png");
@@ -953,6 +947,7 @@ int main() {
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
 	al_play_sample(bgm1, 1, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
+	
 	while (!exit_control) {
 		if (exitStage)	{
 			al_stop_samples();
